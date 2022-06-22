@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1621674449 source:c:\users\korisnik\desktop\c\blackjack\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1621592360 source:c:\users\korisnik\desktop\c\blackjack\blackjacktest.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

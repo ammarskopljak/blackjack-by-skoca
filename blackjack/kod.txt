@@ -1,0 +1,388 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int currentCards(int n, int i);
+void cardSymbolNums(int n);
+void cardSymbolFaces(char face);
+char cardFace();
+int cardDraw();
+char cardColor();
+int askBet(int userBet, int userMoney, int bankersMoney);
+int checkBet(int userBet, int userMoney, int bankersMoney);
+int cardValue(int v);
+int pick(int v);
+int results(int uHand, int userInput, int userMoney, int userBet, int bankersMoney);
+int bankersDraw(int userBet, int userMoney, int uHand, int bankersBet, int bankersMoney);
+int smartBanker(int bankersHand, int uHand);
+int BankercardValue(int v, int bankersHand);
+int Bankerpick(int v, int bankersHand);
+int gameover();
+
+int main()
+{
+    int n;
+    int userInput = 0;
+    srand(time(NULL));
+    int userMoney;
+    int userBet;
+    int value = 0;
+    int v;
+    int uHand = 0;
+    int WinOrLoss;
+    int game;
+    int bankersBet;
+    int bankersMoney;
+    int bankersHand;
+
+    printf("Welcome to Blackjack.\n");
+    printf("Please Enter The Amount Of Money You Would Like To Start With: ");
+    scanf("%d", &userMoney);
+    bankersMoney = userMoney;
+while((userMoney > 0) && (bankersMoney > 0)){
+        userBet = askBet(userBet, userMoney, bankersMoney);
+        bankersBet = userBet;
+        userMoney = userMoney - userBet;
+        bankersMoney = bankersMoney - bankersBet;
+        userInput = 1;
+    while((userInput != 2)){
+        printf("=============================================================\n");
+        n = cardDraw();
+        v =cardValue(n);
+        cardColor();
+        uHand = uHand + v;
+        printf("Your Money: %d\n", userMoney);
+        printf("Card value is = %d\n", v);
+        printf("Your Total Hand Value: %d\n", uHand);
+        printf("--------------------------------\n");
+        WinOrLoss = results(uHand, userInput, userMoney, userBet, bankersMoney);
+        if(WinOrLoss == 0){
+            userMoney = userMoney + (2 * userBet);
+            uHand = 0;
+            userInput = 2;
+        }
+        else if ((WinOrLoss == 3) && (userMoney == 0)){
+            printf("Uh Oh! You Lost All Of Your Money!!!\n\n\n");
+            printf("GAME OVER\n\n");
+            printf("Would You Like To Try Again?\nYes or No?\n\n");
+            userMoney = gameover();
+            uHand = 0;
+            userInput = 2;
+}
+        else if (WinOrLoss == 3){
+            printf("You Busted! Lost Bet!\n\n");
+            printf("Banker's Earnings: %d\n", userBet + bankersBet);
+            bankersMoney = bankersMoney + userBet + bankersBet;
+            uHand = 0;
+            bankersHand = 0;
+            userInput = 2;
+        }
+        else if(WinOrLoss == 1){
+            userInput = 1;
+        }
+        else if(WinOrLoss == 2){
+        printf("-------------------BANKER'S TURN----------------------------------\n");
+        game = bankersDraw(userBet, userMoney, uHand, bankersBet, bankersMoney);
+        if((game == 1) && (userMoney <= 0)){
+            userMoney = 0;
+            userInput = 2;
+        }
+        else if(game == 1){
+        bankersMoney = bankersMoney + bankersBet + userBet;
+        uHand = 0;
+        bankersHand = 0;
+        userInput = 2;
+        }
+        else if(game == 2){
+        userMoney = userMoney + bankersBet + userBet;
+        printf("Your Total Amount: %d\n", userMoney);
+        userInput = 2;
+        uHand = 0;
+        bankersHand = 0;
+        }
+        else{userInput = 2;}
+
+        }
+        else{gameover();}
+}
+    }
+    userMoney = gameover();
+
+    printf("\n\nThank You For Playing Blackjack, See You Soon!\n");
+
+    return 0;
+}
+int cardDraw(){
+int n;
+n = 1 + rand() % 13;
+if( (n > 1) && (n <= 10)){
+    printf("\nYour Card is:\n");
+    cardSymbolNums(n);
+}
+else{cardFace(n);}
+return n;
+}
+//--------------------------------------------------------------------------Determine Color of Card
+char cardColor(){
+    char* color[5];
+    int i;
+    i = rand() % 2;
+    if(i == 0){
+        *color = "Black";
+    }
+    else{*color = "Red";}
+    printf("%s\n", *color);
+}
+//-----------------------------------------------------------------------------Determine Color of Card
+//-----------------------------------------------------------------------------Determine Face Card
+char cardFace(int card){
+    char face;
+
+    if(card == 1){
+    face = 'A';
+}
+
+    else if(card == 11){
+    face = 'J';
+}
+    else if (card == 12){
+    face = 'Q';
+}
+    else{ face = 'K';}
+    cardSymbolFaces(face);
+}
+//-------------------------------------------------------------------------------Determine Face Card
+//------------------------------------------------------------------------------- Printing of the Cards
+void cardSymbolNums(int n){
+int face;
+face = rand() % 4;
+char cardType;
+
+if(face == 0){
+    cardType = 'S';
+    printf("%d-------\n", n);
+    printf("%c       |\n", cardType);
+    printf("|       |\n", n);
+    printf("|       %c\n", cardType);
+    printf(" -------%d\n", n);
+}
+else if(face == 1){
+    cardType = 'D';
+    printf("%d-------\n", n);
+    printf("%c       |\n", cardType);
+    printf("|       |\n", n);
+    printf("|       %c\n", cardType);
+    printf(" -------%d\n", n);
+}
+else if(face == 2){
+    cardType = 'C';
+    printf("%d-------\n", n);
+    printf("%c       |\n", cardType);
+    printf("|       |\n", n);
+    printf("|       %c\n", cardType);
+    printf(" -------%d\n", n);     //Club
+}
+else{ cardType = 'H';
+    printf("%d-------\n", n);
+    printf("%c       |\n", cardType);
+    printf("|       |\n", n);
+    printf("|       %c\n", cardType);
+    printf(" -------%d\n", n);}      //Heart
+}
+
+void cardSymbolFaces(char face){
+int type;
+type = rand() % 4;
+char cardType;
+
+if(type == 0){
+    type = 'S';
+    printf("%c-------\n", face);
+    printf("%c       |\n", type);
+    printf("|       |\n", face);
+    printf("|       %c\n", type);
+    printf(" -------%c\n", face);    //Spade
+}
+else if(type == 1){
+    type = 'D';
+    printf("%c-------\n", face);
+    printf("%c       |\n", type);
+    printf("|       |\n", face);
+    printf("|       %c\n", type);
+    printf(" -------%c\n", face);//Diamond
+}
+else if(type == 2){
+    type = 'C';
+    printf("%c-------\n", face);
+    printf("%c       |\n", type);
+    printf("|       |\n", face);
+    printf("|       %c\n", type);
+    printf(" -------%c\n", face);   //Club
+}
+else{ type = 'H';
+    printf("%c-------\n", face);
+    printf("%c       |\n", type);
+    printf("|       |\n", face);
+    printf("|       %c\n", type);
+    printf(" -------%c\n", face);    //Heart
+}
+}
+//----------------------------------------------------------------------------Printing of the Cards
+//----------------------------------------------------------------------------Asking and Checking for Bet
+int askBet(int userBet, int userMoney, int bankersMoney){
+    printf("Your Money : %d\nBanker's Money: %d\n", userMoney, bankersMoney);
+    printf("\n\nPlease Place Your Bet: ");
+    scanf("%d", &userBet);
+    userBet = checkBet(userBet, userMoney, bankersMoney);
+
+    return userBet;
+}
+
+int checkBet(int userBet, int userMoney, int bankersMoney){
+    if((userBet > userMoney) || (userBet > bankersMoney)){
+        printf("\nInsufficent Funds, Please Re-Enter Bet.\n");
+        askBet(userBet, userMoney, bankersMoney);
+    }
+    else{ return userBet; }
+    }
+//----------------------------------------------------------------------------Asking and Checking for Bet
+
+int cardValue(int v){
+    if(v >= 10){
+        v = 10;
+    }
+    else if((v >= 2) && (v <= 9)){
+        v = v;
+    }
+    else{v = pick(v);}
+
+    return v;
+}
+
+int pick(int v){
+
+char decision[4];
+printf("You Recieved an Ace! Would you like it High (11) or Low(1)?\n");
+scanf("%s", decision);
+if((strcmp(decision, "High") == 0) || (strcmp(decision, "high") == 0)){
+    v = 11;
+    return v;
+}
+else if((strcmp(decision, "Low") == 0) || (strcmp(decision, "low") == 0)){
+    v = 1;
+    return v;
+}
+else{printf("Error, please Re-Enter Decision.\n");
+    pick(v);
+}
+}
+
+
+int results(int uHand, int userInput, int userMoney, int userBet, int bankersMoney){
+int userChoice;
+if(uHand == 21){
+    printf("Blackjack! You won the Hand!\n");
+    printf("Earnings: %d\n", (2 * userBet));
+    return 0;
+}
+else if(uHand > 21){
+    return 3;
+}
+else if(uHand < 21){
+    printf("What would you like to do?\n1 for hit\n2 for stay\n");
+    printf("Your Choice: ");
+    scanf("%d", &userInput);
+    if((userInput == 1)){
+    return userInput;
+    }
+    else if(userInput == 2){
+        return userInput;
+    }
+    else{printf("Invalid Choice. Please Pick Again.\n");
+    results(uHand, userInput, userMoney, userBet, bankersMoney);
+}
+}
+}
+
+int bankersDraw(int userBet, int userMoney, int uHand, int bankersBet, int bankersMoney){
+    int t;
+    int u;
+    int finish;
+    int bankersHand = 0;
+    while(bankersHand <= 21){
+        t = cardDraw();
+        u = BankercardValue(t, bankersHand);
+        cardColor();
+        bankersHand = bankersHand + u;
+        printf("Banker's card value is = %d\n", u);
+        printf("Banker's Total Hand Value: %d\n", bankersHand);
+        finish = smartBanker(bankersHand, uHand);
+    if(finish == 1 ){
+        return 1;
+    }
+    else if(finish == 2){
+        return 2;
+    }
+    }
+    }
+
+int smartBanker(int bankersHand, int uHand){
+    if((bankersHand > uHand) && (bankersHand <= 21)){
+        printf("Banker Won! You Lost This Round.\n");
+        return 1;
+    }
+    else if(bankersHand <= uHand){
+        return 0;
+    }
+    else if (bankersHand == uHand){
+        return 0;;
+    }
+    else if(bankersHand > 21){
+        printf("Banker Busted! You Won!\n");
+        return 2;
+    }
+}
+
+int BankercardValue(int v, int bankersHand){
+    if(v >= 10){
+        v = 10;
+    }
+    else if((v >= 2) && (v <= 9)){
+        v = v;
+    }
+    else{v = Bankerpick(v, bankersHand);}
+
+    return v;
+}
+
+int Bankerpick(int v, int bankersHand){
+
+printf("Banker Recieved an Ace!\n");
+if(bankersHand <= 10){
+    printf("Banker Chose High For Ace.\n");
+    v = 11;
+    return v;
+}
+else{
+    v = 1;
+    printf("Banker Chose Low For Ace.\n");
+    return v;
+}
+}
+
+int gameover(){
+char gameOverDecision[3];
+int d;
+    scanf("%s", gameOverDecision);
+    if((strcmp(gameOverDecision, "Yes") == 0) || (strcmp(gameOverDecision, "yes") == 0)){
+    printf("Welcome Back!\nPlease Enter New Amount.\n");
+    scanf("%d", &d);
+    return d;
+}
+else if((strcmp(gameOverDecision, "No") == 0) || (strcmp(gameOverDecision, "no") == 0)){
+    return 0;
+}
+else{printf("I am Sorry, I did not understand that./n Please Re-Enter Decision.\n");
+    gameover();
+}
+}
